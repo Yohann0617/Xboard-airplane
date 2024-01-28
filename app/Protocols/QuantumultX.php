@@ -100,7 +100,7 @@ class QuantumultX
         $config = [
             "trojan={$server['host']}:{$server['port']}",
             "password={$password}",
-            'over-tls=true',
+            //'over-tls=true',
             $server['server_name'] ? "tls-host={$server['server_name']}" : "",
             // Tips: allowInsecure=false = tls-verification=true
             $server['allow_insecure'] ? 'tls-verification=false' : 'tls-verification=true',
@@ -108,6 +108,22 @@ class QuantumultX
             'udp-relay=true',
             "tag={$server['name']}"
         ];
+
+        // handle websocket
+        if ($server['network'] === 'ws') {
+            array_push($config, 'obfs=wss');
+            if ($server['networkSettings']) {
+                $wsSettings = $server['networkSettings'];
+                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
+                    array_push($config, "obfs-uri={$wsSettings['path']}");
+                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']) && !isset($host))
+                    $host = $wsSettings['headers']['Host'];
+            }
+        }
+        if (isset($host)) {
+            array_push($config, "obfs-host={$host}");
+        }
+        
         $config = array_filter($config);
         $uri = implode(',', $config);
         $uri .= "\r\n";
