@@ -109,23 +109,19 @@ class QuantumultX
             'udp-relay=true',
             "tag={$server['name']}"
         ];
-        $host = $server['server_name'] ?? $server['host'];
-        // The obfs field is only supported with websocket over tls for trojan. When using websocket over tls you should not set over-tls and tls-host options anymore, instead set obfs=wss and obfs-host options.
+        // handle websocket
         if ($server['network'] === 'ws') {
             array_push($config, 'obfs=wss');
-            if ($server['network_settings']) {
-                $wsSettings = $server['network_settings'];
+            if ($server['networkSettings']) {
+                $wsSettings = $server['networkSettings'];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     array_push($config, "obfs-uri={$wsSettings['path']}");
-                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host'])){
+                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']) && !isset($host))
                     $host = $wsSettings['headers']['Host'];
-                }
-                array_push($config, "obfs-host={$host}");
             }
-        } else {
-            array_push($config, "over-tls=true");
-            if(isset($server['server_name']) && !empty($server['server_name']))
-                array_push($config, "tls-host={$server['server_name']}");
+        }
+        if (isset($host)) {
+            array_push($config, "obfs-host={$host}");
         }
         $config = array_filter($config);
         $uri = implode(',', $config);
