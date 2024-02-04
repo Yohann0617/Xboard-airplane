@@ -20,6 +20,7 @@ class QuantumultX
         $servers = $this->servers;
         $user = $this->user;
         $uri = '';
+        header("subscription-userinfo: upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}");
         foreach ($servers as $item) {
             if ($item['type'] === 'shadowsocks') {
                 $uri .= self::buildShadowsocks($user['uuid'], $item);
@@ -31,8 +32,7 @@ class QuantumultX
                 $uri .= self::buildTrojan($user['uuid'], $item);
             }
         }
-        return response(base64_encode($uri), 200)
-                    ->header('subscription-userinfo', "upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}");
+        return base64_encode($uri);
     }
 
     public static function buildShadowsocks($password, $server)
@@ -68,16 +68,18 @@ class QuantumultX
             if ($server['tlsSettings']) {
                 $tlsSettings = $server['tlsSettings'];
                 if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    array_push($config, 'tls-verification=' . (int)($tlsSettings['allowInsecure'] === 0 ? 'false' : 'true'));
+                    array_push($config, 'tls-verification=' . ($tlsSettings['allowInsecure'] ? 'false' : 'true'));
                 if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
                     $host = $tlsSettings['serverName'];
             }
         }
+
         if ($server['network'] === 'ws') {
-            if ($server['tls'])
+            if ($server['tls']) {
                 array_push($config, 'obfs=wss');
-            else
+            } else {                
                 array_push($config, 'obfs=ws');
+            }
             if ($server['networkSettings']) {
                 $wsSettings = $server['networkSettings'];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
@@ -86,6 +88,7 @@ class QuantumultX
                     $host = $wsSettings['headers']['Host'];
             }
         }
+
         if (isset($host)) {
             array_push($config, "obfs-host={$host}");
         }
@@ -100,16 +103,12 @@ class QuantumultX
         $config = [
             "trojan={$server['host']}:{$server['port']}",
             "password={$password}",
-            //'over-tls=true',
-            $server['server_name'] ? "tls-host={$server['server_name']}" : "",
             // Tips: allowInsecure=false = tls-verification=true
             $server['allow_insecure'] ? 'tls-verification=false' : 'tls-verification=true',
             'fast-open=true',
             'udp-relay=true',
             "tag={$server['name']}"
         ];
-
-        // handle websocket
         $host = $server['server_name'] ?? $server['host'];
         // The obfs field is only supported with websocket over tls for trojan. When using websocket over tls you should not set over-tls and tls-host options anymore, instead set obfs=wss and obfs-host options.
         if ($server['network'] === 'ws') {
@@ -128,7 +127,6 @@ class QuantumultX
             if(isset($server['server_name']) && !empty($server['server_name']))
                 array_push($config, "tls-host={$server['server_name']}");
         }
-        
         $config = array_filter($config);
         $uri = implode(',', $config);
         $uri .= "\r\n";
