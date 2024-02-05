@@ -185,7 +185,6 @@ class SingBox
             "server" => $server['host'],
             "server_port" => $server['port'],
             "uuid" => $password,
-            "network" => "udp",
             "packet_encoding" => "xudp",
             "multiplex" => [
                 "enabled" => false,
@@ -230,9 +229,9 @@ class SingBox
             if ($server['network_settings']) {
                 $wsSettings = $server['network_settings'];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path'])) $array['transport']['path'] = $wsSettings['path'];
-                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host'])) $array['transport']['headers'] = ['Host' => array($wsSettings['headers']['Host'])];
-                $array['transport']['max_early_data'] = 2048;
-                $array['transport']['early_data_header_name'] = 'Sec-WebSocket-Protocol';
+                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host'])) $array['transport']['headers'] = $wsSettings['headers']['Host'];
+                // $array['transport']['max_early_data'] = 2048;
+                // $array['transport']['early_data_header_name'] = 'Sec-WebSocket-Protocol';
             }
         }
         if ($server['network'] === 'grpc') {
