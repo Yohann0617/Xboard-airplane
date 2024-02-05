@@ -186,7 +186,7 @@ class SingBox
             "server_port" => $server['port'],
             "uuid" => $password,
             "network" => "udp",
-            "packet_encoding" => ""
+            "packet_encoding" => "xudp"
         ];
 
         $tlsSettings = $server['tls_settings'] ?? [];
@@ -198,8 +198,8 @@ class SingBox
             $tlsSettings = $server['tls_settings'] ?? [];
             if ($server['tls_settings']) {
                 $tlsConfig['disable_sni'] = false;
-                $tlsConfig['insecure'] = isset($tlsSettings['allow_insecure']) && $tlsSettings['allow_insecure'] == 1 ? true : false;
                 $tlsConfig['server_name'] = $tlsSettings['server_name'] ?? null;
+                $tlsConfig['insecure'] = isset($tlsSettings['allow_insecure']) && $tlsSettings['allow_insecure'] == 1 ? true : false;
                 if ($server['tls'] == 2) {
                     $tlsConfig['reality'] = [
                         'enabled' => true,
