@@ -186,7 +186,7 @@ class SingBox
             "server_port" => $server['port'],
             "uuid" => $password,
             "network" => "udp",
-            "packet_encoding" => "xudp"
+            "packet_encoding" => ""
         ];
 
         $tlsSettings = $server['tls_settings'] ?? [];
@@ -208,9 +208,13 @@ class SingBox
                     ];
                 }
                 $fingerprints = ['chrome', 'firefox', 'safari', 'ios', 'edge', 'qq'];
+                // $tlsConfig['utls'] = [
+                //     "enabled" => true,
+                //     "fingerprint" => $fingerprints[array_rand($fingerprints)]
+                // ];
                 $tlsConfig['utls'] = [
-                    "enabled" => true,
-                    "fingerprint" => $fingerprints[array_rand($fingerprints)]
+                    "enabled" => false,
+                    "fingerprint" => ""
                 ];
             }
             $array['tls'] = $tlsConfig;
