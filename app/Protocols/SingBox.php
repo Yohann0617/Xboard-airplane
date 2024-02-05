@@ -186,9 +186,14 @@ class SingBox
             "server_port" => $server['port'],
             "uuid" => $password,
             "network" => "udp",
-            "packet_encoding" => "xudp"
+            "packet_encoding" => "xudp",
+            "multiplex" => [
+                "enabled" => false,
+                "protocol" => "smux",
+                "max_streams" => 32
+            ]
         ];
-
+        
         $tlsSettings = $server['tls_settings'] ?? [];
 
         if ($server['tls']) {
@@ -197,9 +202,8 @@ class SingBox
             $array['flow'] = !empty($server['flow']) ? $server['flow'] : "";
             $tlsSettings = $server['tls_settings'] ?? [];
             if ($server['tls_settings']) {
-                $tlsConfig['disable_sni'] = false;
                 $tlsConfig['server_name'] = $tlsSettings['server_name'] ?? null;
-                $tlsConfig['insecure'] = isset($tlsSettings['allow_insecure']) && $tlsSettings['allow_insecure'] == 1 ? true : false;
+                $tlsConfig['insecure'] = isset($tlsSettings['allow_insecure']) && $tlsSettings['allow_insecure'] == 1 ? false : true;
                 if ($server['tls'] == 2) {
                     $tlsConfig['reality'] = [
                         'enabled' => true,
@@ -208,13 +212,9 @@ class SingBox
                     ];
                 }
                 $fingerprints = ['chrome', 'firefox', 'safari', 'ios', 'edge', 'qq'];
-                // $tlsConfig['utls'] = [
-                //     "enabled" => true,
-                //     "fingerprint" => $fingerprints[array_rand($fingerprints)]
-                // ];
                 $tlsConfig['utls'] = [
-                    "enabled" => false,
-                    "fingerprint" => ""
+                    "enabled" => true,
+                    "fingerprint" => $fingerprints[array_rand($fingerprints)]
                 ];
             }
             $array['tls'] = $tlsConfig;
