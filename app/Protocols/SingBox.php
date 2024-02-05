@@ -185,7 +185,8 @@ class SingBox
             "server" => $server['host'],
             "server_port" => $server['port'],
             "uuid" => $password,
-            "packet_encoding" => ""
+            "network" => "udp",
+            "packet_encoding" => "xudp"
         ];
 
         $tlsSettings = $server['tls_settings'] ?? [];
