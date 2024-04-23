@@ -28,7 +28,7 @@ class General
                 $uri .= self::buildVmess($user['uuid'], $item);
             }
             if ($item['type'] === 'vless') {
-                $uri .= self::buildVless($user['uuid'], $item);
+                $uri .= self::buildVlessWsTls($user['uuid'], $item);
             }
             if ($item['type'] === 'shadowsocks') {
                 $uri .= self::buildShadowsocks($user['uuid'], $item);
@@ -105,6 +105,38 @@ class General
             if (isset($grpcSettings['serviceName'])) $config['path'] = $grpcSettings['serviceName'];
         }
         return "vmess://" . base64_encode(json_encode($config)) . "\r\n";
+    }
+
+   // 仅支持vless+ws+tls
+    public static function buildVlessWsTls($uuid, $server)
+    {
+        $config = [
+            "vless={$server['host']}:{$server['port']}",
+            "method=none",
+            "password={$uuid}",
+            "tls-verification=true",
+            'fast-open=true',
+            'udp-relay=true',
+            "tag={$server['name']}"
+        ];
+        // handle websocket
+        if ($server['network'] === 'ws') {
+            array_push($config, 'obfs=wss');
+            if ($server['network_settings']) {
+                $wsSettings = $server['network_settings'];
+                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
+                    array_push($config, "obfs-uri={$wsSettings['path']}");
+                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']) && !isset($host))
+                    $host = $wsSettings['headers']['Host'];
+            }
+        }
+        if (isset($host)) {
+            array_push($config, "obfs-host={$host}");
+        }
+        $config = array_filter($config);
+        $uri = implode(',', $config);
+        $uri .= "\r\n";
+        return $uri;
     }
 
     public static function buildVless($uuid, $server){
