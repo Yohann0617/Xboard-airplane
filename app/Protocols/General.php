@@ -28,7 +28,7 @@ class General
                 $uri .= self::buildVmess($user['uuid'], $item);
             }
             if ($item['type'] === 'vless') {
-                $uri .= self::buildVlessWsTls($user['uuid'], $item);
+                $uri .= self::buildVless($user['uuid'], $item);
             }
             if ($item['type'] === 'shadowsocks') {
                 $uri .= self::buildShadowsocks($user['uuid'], $item);
