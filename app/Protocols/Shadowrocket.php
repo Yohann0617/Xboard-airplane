@@ -247,6 +247,10 @@ class Shadowrocket
                 }
                 $params['plugin'] = "obfs-local;obfs=websocket;obfs-host={$host};obfs-uri={$path}";
             }
+            // tcp配置
+            if($server['network'] === "tcp" && isset($server['networkSettings']['serviceName'])) {
+                $params['peer'] = $server['service_name'];
+            }
         };
         $query = http_build_query($params);
         $uri = "trojan://{$password}@{$server['host']}:{$server['port']}?{$query}&tfo=1#{$name}";
