@@ -24,10 +24,13 @@ class ClashMeta
         $user = $this->user;
         $appName = admin_setting('app_name', 'XBoard');
         $defaultConfig = base_path() . '/resources/rules/default.clash.yaml';
-        $customConfig = base_path() . '/resources/rules/custom.clash.yaml';
+        $customClashConfig = base_path() . '/resources/rules/custom.clash.yaml';
+        $customConfig = base_path() . '/resources/rules/custom.clashmeta.yaml';
         if (\File::exists($customConfig)) {
             $config = Yaml::parseFile($customConfig);
-        } else {
+        } elseif(\File::exists($customClashConfig)) {
+            $config = Yaml::parseFile($customClashConfig);
+        } else{
             $config = Yaml::parseFile($defaultConfig);
         }
         $proxy = [];
@@ -35,7 +38,7 @@ class ClashMeta
 
         foreach ($servers as $item) {
             if ($item['type'] === 'shadowsocks') {
-                array_push($proxy, self::buildShadowsocks($user['uuid'], $item));
+                array_push($proxy, self::buildShadowsocks($item['password'], $item));
                 array_push($proxies, $item['name']);
             }
             if ($item['type'] === 'vmess') {
@@ -94,16 +97,6 @@ class ClashMeta
 
     public static function buildShadowsocks($password, $server)
     {
-        if ($server['cipher'] === '2022-blake3-aes-128-gcm') {
-            $serverKey = Helper::getServerKey($server['created_at'], 16);
-            $userKey = Helper::uuidToBase64($password, 16);
-            $password = "{$serverKey}:{$userKey}";
-        }
-        if ($server['cipher'] === '2022-blake3-aes-256-gcm') {
-            $serverKey = Helper::getServerKey($server['created_at'], 32);
-            $userKey = Helper::uuidToBase64($password, 32);
-            $password = "{$serverKey}:{$userKey}";
-        }
         $array = [];
         $array['name'] = $server['name'];
         $array['type'] = 'ss';
@@ -310,6 +303,7 @@ class ClashMeta
                     $array['obfs'] = 'salamander';
                     $array['obfs-password'] = $server['server_key'];
                 }
+                if(isset($server['ports'])) $array['ports'] = $server['ports'];
                 break;
         }
         

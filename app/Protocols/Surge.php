@@ -36,7 +36,7 @@ class Surge
                 ])
             ) {
                 // [Proxy]
-                $proxies .= self::buildShadowsocks($user['uuid'], $item);
+                $proxies .= self::buildShadowsocks($item['password'], $item);
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
             }
@@ -49,6 +49,12 @@ class Surge
             if ($item['type'] === 'trojan') {
                 // [Proxy]
                 $proxies .= self::buildTrojan($user['uuid'], $item);
+                // [Proxy Group]
+                $proxyGroup .= $item['name'] . ', ';
+            }
+            if ($item['type'] === 'hysteria') {
+                // [Proxy]
+                $proxies .= self::buildHysteria($user['uuid'], $item);
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
             }
@@ -76,8 +82,9 @@ class Surge
         $download = round($user['d'] / (1024*1024*1024), 2);
         $useTraffic = $upload + $download;
         $totalTraffic = round($user['transfer_enable'] / (1024*1024*1024), 2);
+        $unusedTraffic = $totalTraffic - $useTraffic;
         $expireDate = $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']);
-        $subscribeInfo = "title={$appName}订阅信息, content=上传流量：{$upload}GB\\n下载流量：{$download}GB\\n剩余流量：{$useTraffic}GB\\n套餐流量：{$totalTraffic}GB\\n到期时间：{$expireDate}";
+        $subscribeInfo = "title={$appName}订阅信息, content=上传流量：{$upload}GB\\n下载流量：{$download}GB\\n剩余流量：{ $unusedTraffic }GB\\n套餐流量：{$totalTraffic}GB\\n到期时间：{$expireDate}";
         $config = str_replace('$subscribe_info', $subscribeInfo, $config);
 
         return response($config, 200)
@@ -154,6 +161,29 @@ class Surge
         if (!empty($server['allow_insecure'])) {
             array_push($config, $server['allow_insecure'] ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
         }
+        $config = array_filter($config);
+        $uri = implode(',', $config);
+        $uri .= "\r\n";
+        return $uri;
+    }
+
+    //参考文档: https://manual.nssurge.com/policy/proxy.html
+    public static function buildHysteria($password, $server)
+    {
+        if($server['version'] != 2) return '';
+        $config = [
+            "{$server['name']}=hysteria2",
+            "{$server['host']}",
+            "{$server['port']}",
+            "password={$password}",
+            "download-bandwidth={$server['up_mbps']}",
+            $server['server_name'] ? "sni={$server['server_name']}" : "",
+            // 'tfo=true', 
+            'udp-relay=true'
+        ];
+        if ($server['insecure']) {
+            $config[] = $server['insecure'] ? 'skip-cert-verify=true' : 'skip-cert-verify=false';
+        }    
         $config = array_filter($config);
         $uri = implode(',', $config);
         $uri .= "\r\n";

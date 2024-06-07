@@ -110,13 +110,11 @@ class StatController extends Controller
         $recordAt = strtotime(date('Y-m-d'));
         $statService = new StatisticalService();
         $statService->setStartAt($recordAt);
-        $statService->setServerStats();
         $stats = $statService->getStatServer();
         $statistics = collect($stats)->map(function ($item){
             $item['total'] = $item['u'] + $item['d'];
             return $item;
         })->sortByDesc('total')->values()->all();
-        // return json_encode($statistics);
         foreach ($statistics as $k => $v) {
             foreach ($servers[$v['server_type']] as $server) {
                 if ($server['id'] === $v['server_id']) {
@@ -128,7 +126,7 @@ class StatController extends Controller
         }
         array_multisort(array_column($statistics, 'total'), SORT_DESC, $statistics);
         return [
-            'data' => $statistics
+            'data' => collect($statistics)->take(15)->all()
         ];
     }
     // 获取昨日节点流量排行
@@ -190,7 +188,6 @@ class StatController extends Controller
         $recordAt = strtotime(date('Y-m-d'));
         $statService = new StatisticalService();
         $statService->setStartAt($recordAt);
-        $statService->setUserStats();
         $todayTraffics = $statService->getStatUserByUserID($request->input('user_id'));
         if (($current == 1)  && count($todayTraffics) > 0) {
             foreach ($todayTraffics as $todayTraffic){
