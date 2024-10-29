@@ -36,7 +36,7 @@ class SingBox
         $customConfig = base_path('resources/rules/custom.sing-box.json');
         $jsonData = file_exists($customConfig) ? file_get_contents($customConfig) : file_get_contents($defaultConfig);
 
-        return json_decode($jsonData, true);
+        return json_decode($jsonData, true, 512, JSON_UNESCAPED_SLASHES);
     }
 
     protected function buildOutbounds()
