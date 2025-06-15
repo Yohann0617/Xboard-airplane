@@ -267,7 +267,7 @@ class SingBox
             // ws配置
             if ($server['network'] === "ws") {
                 if (isset($server['networkSettings']['path'])) {
-                    $array['transport']['path'] = $server['network_settings']['path'];
+                    $array['transport']['path'] = $server['networkSettings']['path'];
                 }
                 if (isset($server['networkSettings']['headers']['Host'])) {
                     $array['transport']['headers'] = ['Host' => array($server['networkSettings']['headers']['Host'])];
