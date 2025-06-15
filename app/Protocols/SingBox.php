@@ -261,16 +261,16 @@ class SingBox
         if (isset($server['network']) && in_array($server['network'], ["grpc", "ws"])) {
             $array['transport']['type'] = $server['network'];
             // grpc配置
-            if ($server['network'] === "grpc" && isset($server['network_settings']['serviceName'])) {
-                $array['transport']['service_name'] = $server['network_settings']['serviceName'];
+            if ($server['network'] === "grpc" && isset($server['networkSettings']['serviceName'])) {
+                $array['transport']['service_name'] = $server['networkSettings']['serviceName'];
             }
             // ws配置
             if ($server['network'] === "ws") {
-                if (isset($server['network_settings']['path'])) {
+                if (isset($server['networkSettings']['path'])) {
                     $array['transport']['path'] = $server['network_settings']['path'];
                 }
-                if (isset($server['network_settings']['headers']['Host'])) {
-                    $array['transport']['headers'] = ['Host' => array($server['network_settings']['headers']['Host'])];
+                if (isset($server['networkSettings']['headers']['Host'])) {
+                    $array['transport']['headers'] = ['Host' => array($server['networkSettings']['headers']['Host'])];
                 }
                 $array['transport']['max_early_data'] = 2048;
                 $array['transport']['early_data_header_name'] = 'Sec-WebSocket-Protocol';
