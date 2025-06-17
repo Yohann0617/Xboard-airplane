@@ -88,7 +88,8 @@ class ClashMeta
         return response($yaml, 200)
             ->header('subscription-userinfo', "upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}")
             ->header('profile-update-interval', '24')
-            ->header('content-disposition', 'attachment;filename*=UTF-8\'\'' . rawurlencode($appName));
+            ->header('content-disposition', 'attachment;filename*=UTF-8\'\'' . rawurlencode($appName))
+            ->header('profile-web-page-url', admin_setting('app_url'));
     }
 
     /**
@@ -194,8 +195,6 @@ class ClashMeta
         $array['server'] = $server['host'];
         $array['port'] = $server['port'];
         $array['uuid'] = $password;
-        $array['alterId'] = 0;
-        $array['cipher'] = 'auto';
         $array['udp'] = true;
 
         // XTLS流控算法
@@ -242,10 +241,8 @@ class ClashMeta
                     $array['ws-opts']['path'] = $wsSettings['path'];
                 if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
                     $array['ws-opts']['headers'] = ['Host' => $wsSettings['headers']['Host']];
-                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
-                    $array['ws-path'] = $wsSettings['path'];
-                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
-                    $array['ws-headers'] = ['Host' => $wsSettings['headers']['Host']];
+				$array['ws-opts']['max-early-data'] = 2560;
+                $array['ws-opts']['early-data-header-name'] = 'Sec-WebSocket-Protocol';
             }
         }
         if ($server['network'] === 'grpc') {
