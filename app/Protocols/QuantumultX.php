@@ -203,7 +203,7 @@ class QuantumultX
         return $uri;
     }
 
-        // VLESS + Reality 协议
+                // VLESS + Reality 协议
     public static function buildVlessReality($uuid, $server, $tlsSettings)
     {
         $config = [
@@ -220,6 +220,9 @@ class QuantumultX
             array_push($config, "obfs-host={$tlsSettings['server_name']}");
         }
 
+        // TLS verification (default to true for security)
+        array_push($config, 'tls-verification=true');
+
         // Public Key for Reality (base64 format)
         if (isset($tlsSettings['public_key']) && !empty($tlsSettings['public_key'])) {
             array_push($config, "reality-base64-pubkey={$tlsSettings['public_key']}");
@@ -234,6 +237,10 @@ class QuantumultX
         if (isset($server['flow']) && !empty($server['flow'])) {
             array_push($config, "vless-flow={$server['flow']}");
         }
+
+        // Connection optimization
+        array_push($config, 'fast-open=true');
+        array_push($config, 'udp-relay=true');
 
         // Add server name tag
         array_push($config, "tag={$server['name']}");
