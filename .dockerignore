@@ -1,25 +1,71 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+.github
+
+# IDE 相关
+.idea
+.vscode
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Node.js 相关
 /node_modules
+npm-debug.log
+yarn-error.log
+yarn.lock
+package-lock.json
+
+# Composer 相关
+/vendor
+composer.phar
+
+# Laravel 相关
 /config/v2board.php
 /public/hot
 /public/storage
 /public/env.example.js
 /storage/*.key
-/vendor
-.env
-.env.backup
-.phpunit.result.cache
-.idea
-.lock
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-composer.phar
-composer.lock
-yarn.lock
-docker-compose.yml
-.DS_Store
-/docker
 storage/laravels.conf
 storage/laravels.pid
 storage/laravels-timer-process.pid
+.env
+.env.*
+!.env.example
+.phpunit.result.cache
+
+# 开发工具
+Homestead.json
+Homestead.yaml
+phpunit.xml
+.editorconfig
+
+# 文档和说明
+README.md
+LICENSE
+CHANGELOG.md
+docs/
+
+# Docker 相关
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+Dockerfile.multistage
+Dockerfile.debug
+Dockerfile.verbose
+.dockerignore
+
+# 测试相关
+/tests
+/phpunit
+coverage/
+
+# 临时文件
+*.log
+*.lock
+.lock
+*.tmp
+*.cache
