@@ -150,9 +150,30 @@ class QuantumultX
         return $uri;
     }
 
-    // 仅支持vless+ws+tls
+        // 支持vless+ws+tls 和 vless+reality
     public static function buildVless($uuid, $server)
     {
+        // Check if this is a Reality configuration
+        $isReality = false;
+        $tlsSettings = null;
+        if (isset($server['tls_settings'])) {
+            if (is_string($server['tls_settings'])) {
+                $tlsSettings = json_decode($server['tls_settings'], true);
+            } else {
+                $tlsSettings = $server['tls_settings'];
+            }
+            // Reality configuration has public_key
+            if (isset($tlsSettings['public_key']) && !empty($tlsSettings['public_key'])) {
+                $isReality = true;
+            }
+        }
+
+        // Handle VLESS + Reality
+        if ($isReality && $tlsSettings) {
+            return self::buildVlessReality($uuid, $server, $tlsSettings);
+        }
+
+        // Handle standard VLESS (ws+tls)
         $config = [
             "vless={$server['host']}:{$server['port']}",
             "method=none",
@@ -178,6 +199,47 @@ class QuantumultX
         }
         $config = array_filter($config);
         $uri = implode(',', $config);
+        $uri .= "\r\n";
+        return $uri;
+    }
+
+        // VLESS + Reality 协议
+    public static function buildVlessReality($uuid, $server, $tlsSettings)
+    {
+        $config = [
+            "vless={$server['host']}:{$server['port']}",
+            "method=none",
+            "password={$uuid}"
+        ];
+
+        // Reality uses obfs=over-tls
+        array_push($config, 'obfs=over-tls');
+
+        // Server Name (SNI) - obfs-host for Reality
+        if (isset($tlsSettings['server_name']) && !empty($tlsSettings['server_name'])) {
+            array_push($config, "obfs-host={$tlsSettings['server_name']}");
+        }
+
+        // Public Key for Reality (base64 format)
+        if (isset($tlsSettings['public_key']) && !empty($tlsSettings['public_key'])) {
+            array_push($config, "reality-base64-pubkey={$tlsSettings['public_key']}");
+        }
+
+        // Short ID for Reality (hex format)
+        if (isset($tlsSettings['short_id']) && !empty($tlsSettings['short_id'])) {
+            array_push($config, "reality-hex-shortid={$tlsSettings['short_id']}");
+        }
+
+        // Flow control (e.g., xtls-rprx-vision) - use vless-flow parameter
+        if (isset($server['flow']) && !empty($server['flow'])) {
+            array_push($config, "vless-flow={$server['flow']}");
+        }
+
+        // Add server name tag
+        array_push($config, "tag={$server['name']}");
+
+        $config = array_filter($config);
+        $uri = implode(', ', $config);
         $uri .= "\r\n";
         return $uri;
     }
