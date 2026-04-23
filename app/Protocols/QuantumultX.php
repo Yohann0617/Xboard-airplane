@@ -189,7 +189,7 @@ class QuantumultX
             if ($server['network_settings']) {
                 $wsSettings = $server['network_settings'];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
-                    array_push($config, "obfs-uri={$wsSettings['path']}");
+                    array_push($config, "obfs-uri={$wsSettings['path']}/?ed=2560");
                 if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']) && !isset($host))
                     $host = $wsSettings['headers']['Host'];
             }
@@ -203,7 +203,7 @@ class QuantumultX
         return $uri;
     }
 
-                // VLESS + Reality 协议
+    // VLESS + Reality 协议
     public static function buildVlessReality($uuid, $server, $tlsSettings)
     {
         $config = [
