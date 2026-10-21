@@ -2,6 +2,22 @@
 > 本文将教你如何使用aapanel进行部署  
 
 <span style="color:red">⚠️：Centos7有部分反馈部署失败，请尽量避免使用Centos7进行部署</span> 
+
+<span style="color:red">⚠️：PHP 8.1 已停止官方支持，且不在 PHP2Shell（CVE-2026-109618 / CVE-2026-109619）官方修复范围内（官方补丁只覆盖 8.2~8.5）。强烈建议在 App Store 中改用 PHP 8.3 并安装对应的 swoole 扩展；若条件限制必须使用 8.1，请在下面「开启webman」步骤生成的 cli-php.ini 中追加以下加固项（关闭 session 上传进度跟踪、禁止会话固定、关闭错误输出）：</span>
+
+```ini
+session.upload_progress.enabled = Off
+session.upload_progress.name = xbd7f3c1e9a
+session.upload_progress.prefix = up_9d4c8b2f6a
+session.use_strict_mode = 1
+session.cookie_httponly = 1
+display_errors = Off
+display_startup_errors = Off
+expose_php = Off
+```
+
+> 说明：本项目通过 webman/Swoole 常驻进程提供服务（CLI 方式，非 php-fpm/cgi），请求解析不经过 PHP 核心的 multipart 处理器，因此默认部署方式并不会直接被该漏洞利用；但只要服务器上仍运行着未修复的 PHP 8.1（面板自身、其他 php-fpm 站点等），风险依然存在，请务必排查并升级。
+
 ### 安装
 1. 安装aaPanel 
 
